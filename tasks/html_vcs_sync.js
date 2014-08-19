@@ -33,8 +33,6 @@ module.exports = function(grunt) {
   grunt.registerMultiTask('html_vcs_sync', 'Syncs version numbers in your html with vcs tags', function() {
     // Merge task-specific and/or target-specific options with these defaults.
     var options = this.options({
-      punctuation: '.',
-      separator: ', ',
       vcs: {
           type: 'git'
       }

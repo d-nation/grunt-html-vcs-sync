@@ -30,10 +30,8 @@ module.exports = function(grunt) {
 
     // Configuration to be run (and then tested).
     html_vcs_sync: {
-      custom_options: {
+      mercurial: {
         options: {
-          separator: ': ',
-          punctuation: ' !!!',
           vcs: {
             type: 'mercurial',
             tagLocation: 'test/fixtures/.hgtags'

@@ -1,6 +1,6 @@
 # grunt-html-vcs-sync
 
-> Syncs version numbers in your html with vcs tags
+> Syncs a meta tag named "VCSTag" with the most recent vcs tag. Supports Mercurial and Git (Git coming soon)
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -25,65 +25,63 @@ In your project's Gruntfile, add a section named `html_vcs_sync` to the data obj
 ```js
 grunt.initConfig({
   html_vcs_sync: {
-    options: {
-      // Task-specific options go here.
-    },
-    your_target: {
-      // Target-specific file lists and/or options go here.
-    },
+    vcs_name: {
+      options: {
+        // Task-specific options go here.
+      },
+      your_target: {
+        // Target-specific file lists and/or options go here.
+      },
+    }
   },
 });
 ```
 
 ### Options
 
-#### options.separator
+#### options.vcs
+Type: `Object`
+
+The object describing your version control system.
+
+#### options.vcs.type
 Type: `String`
-Default value: `',  '`
+Default value: `'git'`
 
-A string value that is used to do something with whatever.
+The string name of your vcs. Currently only "mercurial" works.
 
-#### options.punctuation
+#### options.vcs.tagLocation
 Type: `String`
-Default value: `'.'`
+Default value: `""`
 
-A string value that is used to do something else with whatever else.
+Mercurial only: The path to your .hgtags file.
 
 ### Usage Examples
 
-#### Default Options
-In this example, the default options are used to do something with whatever. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result would be `Testing, 1 2 3.`
+#### Mercurial
+In this example, Mercurial is the VCS of choice. If the latest tag in `.hgtags` is 1.0.2 then `index.html` and `another-page.html` would have `<meta name="VCSTag" content="1.0.2" />` appended (or the content changed to "1.0.2" if the meta tag already exists).
 
 ```js
 grunt.initConfig({
   html_vcs_sync: {
-    options: {},
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
+    mercurial: {
+      options: {
+        vcs: {
+          type: 'mercurial',
+          tagLocation: '.hgtags'
+        }
+      },
+      files: {
+        'templates/index.html': ['templates/index.html'],
+        'templates/another-page.html': ['templates/another-page.html']
+      }
+    }
   },
 });
 ```
 
-#### Custom Options
-In this example, custom options are used to do something else with whatever else. So if the `testing` file has the content `Testing` and the `123` file had the content `1 2 3`, the generated result in this case would be `Testing: 1 2 3 !!!`
-
-```js
-grunt.initConfig({
-  html_vcs_sync: {
-    options: {
-      separator: ': ',
-      punctuation: ' !!!',
-    },
-    files: {
-      'dest/default_options': ['src/testing', 'src/123'],
-    },
-  },
-});
-```
+#### Git
+Not implemented yet
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).
-
-## Release History
-_(Nothing yet)_
