@@ -22,15 +22,7 @@ function getHgTags(fileName){
     var line = getLastLine(fileName || ".hgtags"),
         tokens = line.split(" ");
 
-    return tokens[1];
-}
-
-function findMetaTag(fileName){
-    var data = fs.readFileSync(fileName, 'utf8'),
-        $ = cheerio.load(data),
-        vcsMeta = $('meta[name=VCSTag]').attr("content");
-
-    console.log(vcsMeta);
+    return tokens[1].trim();
 }
 
 module.exports = function(grunt) {
@@ -72,7 +64,7 @@ module.exports = function(grunt) {
           $ = cheerio.load(data),
           vcsMeta = $('meta[name=VCSTag]');
 
-        if (vcsMeta) {
+        if (vcsMeta.attr("content")) {
           vcsMeta.attr("content", vcsTag);
         } else {
             $('head').append('<meta name="VCSTag" content="' + vcsTag + '" />');

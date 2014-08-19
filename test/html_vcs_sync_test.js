@@ -2,6 +2,8 @@
 
 var grunt = require('grunt');
 
+var cheerio = require('cheerio');
+
 /*
   ======== A Handy Little Nodeunit Reference ========
   https://github.com/caolan/nodeunit
@@ -40,8 +42,11 @@ exports.html_vcs_sync = {
     test.expect(1);
 
     var actual = grunt.file.read('tmp/hg-index.html');
-    var expected = grunt.file.read('test/expected/hg-index.html');
-    test.equal(actual, expected, 'should change the current meta tag.');
+    var $ = cheerio.load(actual);
+    var actualVCSTag = $('meta[name=VCSTag]').attr("content");
+    var expected = grunt.file.read('test/expected/version');
+
+    test.equal(actualVCSTag, expected, 'should add the vcs meta tag.');
 
     test.done();
   },
@@ -49,8 +54,11 @@ exports.html_vcs_sync = {
     test.expect(1);
 
     var actual = grunt.file.read('tmp/hg-index-no-meta.html');
-    var expected = grunt.file.read('test/expected/hg-index.html');
-    test.equal(actual, expected, 'should add the vcs meta tag.');
+    var $ = cheerio.load(actual);
+    var actualVCSTag = $('meta[name=VCSTag]').attr("content");
+    var expected = grunt.file.read('test/expected/version');
+
+    test.equal(actualVCSTag, expected, 'should add the vcs meta tag.');
 
     test.done();
   }
