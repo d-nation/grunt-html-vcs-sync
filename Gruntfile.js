@@ -1,6 +1,6 @@
 /*
  * grunt-html-vcs-sync
- * https://github.com/d-nation/grunt-html-vcx-sync
+ * https://github.com/d-nation/grunt-html-vcs-sync
  *
  * Copyright (c) 2014 Dustin Nation
  * Licensed under the MIT license.
