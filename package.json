@@ -45,6 +45,7 @@
     "vcs"
   ],
   "dependencies": {
-    "interpolate": "^0.1.0"
+    "interpolate": "^0.1.0",
+    "shelljs": "^0.3.0"
   }
 }

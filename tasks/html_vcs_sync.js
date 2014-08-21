@@ -9,6 +9,7 @@
 'use strict';
 
 var fs = require('fs');
+var shell = require('shelljs');
 var interpolate = require('interpolate');
 
 function isCss(filepath) {
@@ -99,6 +100,9 @@ module.exports = function(grunt) {
     //Get most recent VCS tag
     if (options.vcs.type === "mercurial") {
       options.vcs.vcsTag = getHgTags(options.vcs.tagLocation);
+    } else {
+      var gitDescribe =  shell.exec('git describe', {silent: true}).output.trim();
+      options.vcs.vcsTag = gitDescribe.split("-")[0];
     }
 
     // Iterate over all specified file groups.

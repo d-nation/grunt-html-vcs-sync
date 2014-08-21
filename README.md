@@ -1,6 +1,6 @@
 # grunt-html-vcs-sync
 
-> Syncs asset urls with the most recent vcs tag. Supports Mercurial (Git coming soon).
+> Syncs asset urls with the most recent vcs tag. Supports Git and Mercurial.
 
 Credits: This plugin is basically an extension of Gilles Ruppert's [grunt-asset-cachebuster](https://github.com/gillesruppert/grunt-asset-cachebuster). If you need asset versioning that isn't a VCS tag, use it instead.
 
@@ -90,7 +90,23 @@ grunt.initConfig({
 ```
 
 #### Git
-Not implemented yet
+In this example, Git is the VCS of choice. If the active tag in the git repo is 1.0.2 then `index.html` and `another-page.html` would have all asset urls within them be appended with "?v=1.0.2" (or changed to "?v=1.0.2" if it had a version already added to the url).
+
+```js
+grunt.initConfig({
+  html_vcs_sync: {
+    mercurial: {
+      options: {
+        ignore: ["code.jquery.com"]
+      },
+      files: {
+        'templates/index.html': ['templates/index.html'],
+        'templates/another-page.html': ['templates/another-page.html']
+      }
+    }
+  },
+});
+```
 
 ## Contributing
 In lieu of a formal styleguide, take care to maintain the existing coding style. Add unit tests for any new or changed functionality. Lint and test your code using [Grunt](http://gruntjs.com/).

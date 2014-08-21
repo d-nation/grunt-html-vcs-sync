@@ -41,6 +41,14 @@ module.exports = function(grunt) {
         files: {
           'tmp/hg-index.html': ['test/fixtures/index.html']
         }
+      },
+      git: {
+        options: {
+          ignore: ["require.js"]
+        },
+        files: {
+          'tmp/git-index.html': ['test/fixtures/index.html']
+        }
       }
     },
 

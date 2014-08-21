@@ -46,5 +46,15 @@ exports.html_vcs_sync = {
     test.equal(actual, expected, 'should add the vcs meta tag.');
 
     test.done();
+  },
+  git: function(test) {
+    test.expect(1);
+
+    var actual = grunt.file.read('tmp/git-index.html');
+    var expected = grunt.file.read('test/expected/git-index-expected.html');
+
+    test.equal(actual, expected, 'should add the vcs meta tag.');
+
+    test.done();
   }
 };
