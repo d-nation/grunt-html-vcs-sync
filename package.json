@@ -1,7 +1,7 @@
 {
   "name": "grunt-html-vcs-sync",
   "description": "Syncs asset version numbers in your html with vcs tags",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "homepage": "https://github.com/d-nation/grunt-html-vcs-sync",
   "author": {
     "name": "Dustin Nation"
