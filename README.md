@@ -1,6 +1,8 @@
 # grunt-html-vcs-sync
 
-> Syncs a meta tag named "VCSTag" with the most recent vcs tag. Supports Mercurial and Git (Git coming soon)
+> Syncs asset urls with the most recent vcs tag. Supports Mercurial (Git coming soon).
+
+Credits: This plugin is basically an extension of Gilles Ruppert's [grunt-asset-cachebuster](https://github.com/gillesruppert/grunt-asset-cachebuster). If you need asset versioning that isn't a VCS tag, use it instead.
 
 ## Getting Started
 This plugin requires Grunt `~0.4.5`
@@ -39,6 +41,12 @@ grunt.initConfig({
 
 ### Options
 
+#### options.ignore
+Type: `Array`
+Default value: []
+
+Array of strings that, if in the url of an asset, will not have the version number appended. This is useful for CDNs or assets that are never changed.
+
 #### options.vcs
 Type: `Object`
 
@@ -59,7 +67,7 @@ Mercurial only: The path to your .hgtags file.
 ### Usage Examples
 
 #### Mercurial
-In this example, Mercurial is the VCS of choice. If the latest tag in `.hgtags` is 1.0.2 then `index.html` and `another-page.html` would have `<meta name="VCSTag" content="1.0.2" />` appended (or the content changed to "1.0.2" if the meta tag already exists).
+In this example, Mercurial is the VCS of choice. If the latest tag in `.hgtags` is 1.0.2 then `index.html` and `another-page.html` would have all asset urls within them be appended with "?v=1.0.2" (or changed to "?v=1.0.2" if it had a version already added to the url).
 
 ```js
 grunt.initConfig({
@@ -69,7 +77,8 @@ grunt.initConfig({
         vcs: {
           type: 'mercurial',
           tagLocation: '.hgtags'
-        }
+        },
+        ignore: ["code.jquery.com"]
       },
       files: {
         'templates/index.html': ['templates/index.html'],

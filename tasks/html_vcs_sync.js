@@ -9,9 +9,54 @@
 'use strict';
 
 var fs = require('fs');
-var cheerio = require('cheerio');
+var interpolate = require('interpolate');
 
-function getLastLine(fileName){
+function isCss(filepath) {
+  return (/\.css$/).test(filepath);
+}
+
+function isHtml(filepath, extension) {
+  var htmlTest = new RegExp('\\.' + extension + '$', 'gi');
+  return htmlTest.test(filepath);
+}
+
+function bust(buster, url) {
+  return (typeof buster === 'function') ? buster(url) : buster;
+}
+
+function replace(replacer, options) {
+
+  return function _replace(match, p1) {
+    if (!options.ignore.some(function (ignore) { return match.indexOf(ignore) > -1; })) {
+      return interpolate(replacer, { p1: p1, buster: bust(options.vcs.vcsTag, p1) });
+    } else {
+      return match;
+    }
+  };
+}
+
+function cacheBustCss(css, options) {
+  var img = /url\(['"]?(?!data:)([^)'"?]+)['"]?(?:\?v=[0-9]+)*\)/gi;
+  return css.replace(img, replace('url({p1}?v={buster})', options));
+}
+
+function cacheBustHtml(html, options) {
+  var css = /href="(.+\.css)(\?v=.+?)?"/gi;
+  html = html.replace(css, replace('href="{p1}?v={buster}"', options));
+
+  var js = /src="(.+?\.js)(\?v=.+?)?"/gi;
+  html = html.replace(js, replace('src="{p1}?v={buster}"', options));
+
+  //grab js out of the data-main attr (for require.js users)
+  var datamain = /data-main="(.+?\.js)(\?v=.+?)?"/gi;
+  html = html.replace(datamain, replace('data-main="{p1}?v={buster}"', options));
+
+  var images = /src="(.+\.(?:png|gif|jpg|jpeg))(\?v=.+?)?"/gi;
+  html = html.replace(images, replace('src="{p1}?v={buster}"', options));
+  return html;
+}
+
+function getHgTagLastLine(fileName){
   var data = fs.readFileSync(fileName, 'utf8'),
       lines = data.split("\n");
 
@@ -19,13 +64,25 @@ function getLastLine(fileName){
 }
 
 function getHgTags(fileName){
-    var line = getLastLine(fileName || ".hgtags"),
+    var line = getHgTagLastLine(fileName || ".hgtags"),
         tokens = line.split(" ");
 
     return tokens[1].trim();
 }
 
 module.exports = function(grunt) {
+
+  function cacheBust(src, files, options) {
+    if (isCss(files.dest)) {
+      grunt.file.write(files.dest, cacheBustCss(src, options));
+    }
+    else if (isHtml(files.dest, "html")) {
+      grunt.file.write(files.dest, cacheBustHtml(src, options));
+    } else {
+      grunt.file.write(files.dest, cacheBustHtml(src, options));
+    }
+    grunt.log.writeln('Assets in "' + files.dest + '" synced to tag ' + options.vcs.vcsTag + '.');
+  }
 
   // Please see the Grunt documentation for more information regarding task
   // creation: http://gruntjs.com/creating-tasks
@@ -35,45 +92,33 @@ module.exports = function(grunt) {
     var options = this.options({
       vcs: {
           type: 'git'
-      }
+      },
+      ignore: []
     });
-    var vcsTag = "";
 
     //Get most recent VCS tag
     if (options.vcs.type === "mercurial") {
-      vcsTag = getHgTags(options.vcs.tagLocation);
+      options.vcs.vcsTag = getHgTags(options.vcs.tagLocation);
     }
 
     // Iterate over all specified file groups.
-    this.files.forEach(function(f) {
-      // Concat specified files.
-      var src = f.src.filter(function(filepath) {
-        // Warn on and remove invalid source files (if nonull was set).
+    this.files.forEach(function(files) {
+      var src = files.src.filter(function(filepath) {
         if (!grunt.file.exists(filepath)) {
           grunt.log.warn('Source file "' + filepath + '" not found.');
           return false;
         } else {
           return true;
         }
-      });
+      }).map(function (filepath) { return grunt.file.read(filepath); })
+      .join(grunt.util.normalizelf(''));
 
-      src.forEach(function(f2){
-        var data = fs.readFileSync(f2, 'utf8'),
-          $ = cheerio.load(data),
-          vcsMeta = $('meta[name=VCSTag]');
-
-        if (vcsMeta.attr("content")) {
-          vcsMeta.attr("content", vcsTag);
-        } else {
-            $('head').append('<meta name="VCSTag" content="' + vcsTag + '" />');
-        }
-
-        // Write the destination file.
-        grunt.file.write(f.dest, $.html());
-
-        // Print a success message.
-        grunt.log.writeln('File "' + f.dest + '" updateded to version "'+ vcsTag + '".');
-      });
+      try {
+        cacheBust(src, files, options);
+      } catch (e) {
+        grunt.log.error('ERROR:', e.message, e);
+        grunt.fail.warn('Failed to cachebust assets in: ' + files.dest);
+      }
     });
   });
 

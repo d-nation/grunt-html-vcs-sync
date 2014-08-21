@@ -35,11 +35,11 @@ module.exports = function(grunt) {
           vcs: {
             type: 'mercurial',
             tagLocation: 'test/fixtures/.hgtags'
-          }
+          },
+          ignore: ["require.js"]
         },
         files: {
-          'tmp/hg-index.html': ['test/fixtures/index.html'],
-          'tmp/hg-index-no-meta.html': ['test/fixtures/index-no-meta.html']
+          'tmp/hg-index.html': ['test/fixtures/index.html']
         }
       }
     },
